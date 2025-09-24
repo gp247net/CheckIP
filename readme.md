@@ -62,7 +62,7 @@ You can install the plugin similarly to other GP247 plugins:
 - For runtime filtering, update your model queries to include `status = 1` when retrieving allow/deny lists.
 
 ## Links
-- Reference (GP247 Store): `https://gp247.net/en/product/plugin-shop-discount.html`
+- Reference (GP247 Store): `https://gp247.net/en/product/plugin-checkip.html`
 - GitHub (source): `https://github.com/gp247net/CheckIP`
 
 ## License

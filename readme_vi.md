@@ -55,7 +55,7 @@ Có thể cài đặt theo các cách sau (tương tự tài liệu plugin trên
 - Lưu ý: `allow` có ưu tiên cao hơn `deny`.
 
 ## Liên kết
-- Trang tham khảo (GP247 Store): `https://gp247.net/vi/product/check-ip.html`
+- Trang tham khảo (GP247 Store): `https://gp247.net/vi/product/plugin-checkip.html`
 - GitHub (mã nguồn): `https://github.com/gp247net/CheckIP`
 
 ## Giấy phép

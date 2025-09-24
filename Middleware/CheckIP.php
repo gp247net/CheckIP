@@ -16,7 +16,6 @@ class CheckIP
     public function handle($request, Closure $next)
     {
         $ipList = $this->ipList();
-        gp247_report('ipList: ' . json_encode($ipList));
         $ipsAllow = \App\GP247\Plugins\CheckIP\Models\CheckIPAccess::getIpsAllow();
         $ipsDeny = \App\GP247\Plugins\CheckIP\Models\CheckIPAccess::getIpsDeny();
         // Check if any IP in $ipList matches any IP in $ipsAllow, or if allow all ('*'), or is localhost
