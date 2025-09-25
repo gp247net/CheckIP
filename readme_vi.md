@@ -30,6 +30,30 @@ Plugin CheckIP hỗ trợ quản lý và ngăn chặn IP truy cập vào hệ th
 
 Gợi ý: Nếu muốn chỉ áp dụng các bản ghi đang bật, hãy lọc `status = 1` khi truy vấn danh sách allow/deny trong Model.
 
+## Sơ đồ hoạt động
+
+Phạm vi bảo vệ: Admin, Front, API (đều đi qua middleware `CheckIP`).
+
+```mermaid
+flowchart LR
+    subgraph Contexts[Phạm vi bảo vệ]
+        A[Admin] --> M
+        B[Front] --> M
+        C[API] --> M
+    end
+
+    M[Middleware CheckIP] --> D1{IP là localhost?<br/>127.0.0.1 hoặc ::1}
+    D1 -- Có --> ALLOW[Cho phép truy cập]
+    D1 -- Không --> D2{Khớp danh sách Allow<br/>hoặc Allow *}
+    D2 -- Có --> ALLOW
+    D2 -- Không --> D3{Khớp danh sách Deny<br/>hoặc Deny *}
+    D3 -- Có --> DENY[403 Forbidden]
+    D3 -- Không --> ALLOW
+
+    ALLOW --> NEXT[Tiếp tục vào route/controller]
+    DENY --> STOP[Dừng yêu cầu]
+```
+
 ## Cài đặt
 Có thể cài đặt theo các cách sau (tương tự tài liệu plugin trên GP247 Store):
 
