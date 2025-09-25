@@ -11,16 +11,6 @@ CheckIP plugin helps manage and block IP addresses accessing the GP247 system.
 - Intuitive admin UI to create/update/delete.
 - Field `status` (ON/OFF) per record to quickly enable/disable (default ON when creating new).
 
-## Architecture & Data Schema
-- Table: `check_ip_access`
-- Main columns:
-  - `id` (int, PK)
-  - `ip` (varchar(20)) — IP address or `*`
-  - `description` (varchar(255), nullable)
-  - `type` (varchar(10)) — `allow` | `deny`
-  - `status` (varchar(10), index, default 1) — `1` (ON) | `0` (OFF)
-  - `timestamps`
-
 ## Middleware
 - Class: `App\GP247\Plugins\CheckIP\Middleware\CheckIP`
 - Flow (simplified):

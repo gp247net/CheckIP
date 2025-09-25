@@ -27,7 +27,7 @@ class CheckIPAccess extends Model
             $table->string('ip', 20)->index();
             $table->string('description', 255)->nullable();
             $table->string('type', 10)->index();
-            $table->string('status', 10)->index()->default(1);
+            $table->tinyInteger('status')->index()->default(1);
             $table->timestamps();
         });
     }

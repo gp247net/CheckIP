@@ -11,16 +11,6 @@ Plugin CheckIP hỗ trợ quản lý và ngăn chặn IP truy cập vào hệ th
 - Giao diện quản trực quan, hỗ trợ tạo/sửa/xóa.
 - Trường trạng thái `status` (ON/OFF) cho từng bản ghi để bật/tắt nhanh mục cấu hình (mặc định ON khi tạo mới).
 
-## Kiến trúc & Lược đồ dữ liệu
-- Bảng: `check_ip_access`
-- Cột chính:
-  - `id` (int, PK)
-  - `ip` (varchar(20)) — địa chỉ IP hoặc `*`
-  - `description` (varchar(255), nullable)
-  - `type` (varchar(10)) — `allow` | `deny`
-  - `status` (varchar(10), index, default 1) — `1` (ON) | `0` (OFF)
-  - `timestamps`
-
 ## Middleware
 - Lớp: `App\GP247\Plugins\CheckIP\Middleware\CheckIP`
 - Luồng xử lý (rút gọn):
