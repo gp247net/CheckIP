@@ -28,7 +28,6 @@ Plugin CheckIP hỗ trợ quản lý và ngăn chặn IP truy cập vào hệ th
   2. Ngược lại, nếu IP khớp danh sách deny (hoặc deny `*`) => trả về 403.
   3. Nếu không khớp gì => cho phép.
 
-Gợi ý: Nếu muốn chỉ áp dụng các bản ghi đang bật, hãy lọc `status = 1` khi truy vấn danh sách allow/deny trong Model.
 
 ## Sơ đồ hoạt động
 
@@ -70,7 +69,7 @@ Có thể cài đặt theo các cách sau (tương tự tài liệu plugin trên
 2. Tìm "CheckIP" và nhấn Cài đặt.
 
 ## Kích hoạt & Sử dụng
-- Sau khi cài đặt, vào Admin > Bảo mật > CheckIP (tên menu có thể nằm trong nhóm SECURITY) để quản lý.
+- Sau khi cài đặt, vào Admin > Bảo mật > CheckIP (tên menu trong nhóm SECURITY) để quản lý.
 - Tạo bản ghi:
   - `description`: mô tả ngắn.
   - `ip`: địa chỉ IP (ví dụ: `203.0.113.10`) hoặc `*`.
