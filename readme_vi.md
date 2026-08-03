@@ -1,6 +1,10 @@
 # CheckIP Plugin (Tiếng Việt)
 
+🌐 [English](readme.md) | **Tiếng Việt**
+
 Plugin CheckIP hỗ trợ quản lý và ngăn chặn IP truy cập vào hệ thống GP247.
+
+> **Yêu cầu GP247 Core 2.0.** Màn hình quản trị chạy trên shell TailAdmin (Livewire).
 
 ## Tính năng
 - Quản lý danh sách IP theo 2 loại: **allow** và **deny**.
@@ -8,16 +12,33 @@ Plugin CheckIP hỗ trợ quản lý và ngăn chặn IP truy cập vào hệ th
   - `*` trong allow: cho phép tất cả IP.
   - `*` trong deny: chặn tất cả IP (trừ khi đã được allow trước đó).
 - Ưu tiên xử lý: allow > deny.
-- Giao diện quản trực quan, hỗ trợ tạo/sửa/xóa.
+- Giao diện quản trị Livewire (TailAdmin) hỗ trợ tạo/sửa/xóa, với form thêm/sửa và danh sách allow/deny đặt cạnh nhau.
 - Trường trạng thái `status` (ON/OFF) cho từng bản ghi để bật/tắt nhanh mục cấu hình (mặc định ON khi tạo mới).
 
 ## Middleware
 - Lớp: `App\GP247\Plugins\CheckIP\Middleware\CheckIP`
 - Luồng xử lý (rút gọn):
-  1. Nếu IP khớp danh sách allow (hoặc allow `*`) hoặc là localhost (`127.0.0.1`, `::1`) => cho phép.
-  2. Ngược lại, nếu IP khớp danh sách deny (hoặc deny `*`) => trả về 403.
-  3. Nếu không khớp gì => cho phép.
+  1. Lấy IP client từ framework (`request()->ips()`), tôn trọng cấu hình trusted proxy (xem bên dưới).
+  2. Nếu IP khớp danh sách allow (hoặc allow `*`) hoặc là localhost (`127.0.0.1`, `::1`) => cho phép.
+  3. Ngược lại, nếu IP khớp danh sách deny (hoặc deny `*`) => trả về 403.
+  4. Nếu không khớp gì => cho phép.
 
+## IP client & trusted proxy
+IP client được Laravel xác định qua `request()->ips()`, dựa theo `config/trustedproxy.php`
+(giá trị env `TRUSTED_PROXIES`). Các header chuyển tiếp (`X-Forwarded-For`, `CF-Connecting-IP`) **không**
+được tin trừ khi đến từ proxy do bạn khai báo rõ ràng — điều này ngăn client giả mạo header
+(ví dụ `X-Forwarded-For: 127.0.0.1`) để lách các rule deny.
+
+- **Bare host** (Nginx/Apache → PHP-FPM trực tiếp): để trống `TRUSTED_PROXIES`. IP client thật chính là
+  kết nối trực tiếp — không có proxy nào để tin.
+- **Sau reverse proxy / Cloudflare**: đặt `TRUSTED_PROXIES` trong `.env` (ví dụ `127.0.0.1` cho
+  `proxy_pass` cục bộ, hoặc dải IP của Cloudflare) để nhận đúng IP người truy cập thật. Nếu không đặt,
+  mọi người truy cập sẽ hiện là IP của proxy và các rule allow/deny sẽ áp chung cho tất cả.
+- **Localhost** (`127.0.0.1`, `::1`) luôn được cho phép, nên truy cập cục bộ không bao giờ bị khóa.
+
+> ⚠️ Middleware cũng bảo vệ khu vực **Admin**. Tránh đặt deny `*` (hoặc deny chính IP của bạn) trừ khi có
+> một rule allow tin cậy giữ quyền truy cập — nếu không bạn có thể tự khóa mình và phải sửa trực tiếp
+> database để khôi phục.
 
 ## Sơ đồ hoạt động
 
@@ -31,7 +52,8 @@ flowchart LR
         C[API] --> M
     end
 
-    M[Middleware CheckIP] --> D1{IP là localhost?<br/>127.0.0.1 hoặc ::1}
+    M[Middleware CheckIP] --> R[Xác định IP client<br/>qua trusted proxy]
+    R --> D1{IP là localhost?<br/>127.0.0.1 hoặc ::1}
     D1 -- Có --> ALLOW[Cho phép truy cập]
     D1 -- Không --> D2{Khớp danh sách Allow<br/>hoặc Allow *}
     D2 -- Có --> ALLOW
@@ -73,3 +95,6 @@ Có thể cài đặt theo các cách sau (tương tự tài liệu plugin trên
 
 ## Giấy phép
 Plugin được phát triển bởi GP247.
+
+---
+**Cập nhật lần cuối:** 2026-08-03

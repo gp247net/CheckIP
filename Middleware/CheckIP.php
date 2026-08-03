@@ -58,36 +58,22 @@ class CheckIP
         return $next($request);
     }
 
+    /**
+     * Resolve the request's client IP(s) used for allow/deny matching.
+     *
+     * WHY: only the framework-resolved IPs are trusted (Request::ips(), which
+     * honours config/trustedproxy.php). Forwarded headers (X-Forwarded-For,
+     * CF-Connecting-IP) are deliberately NOT read here: reading them directly let
+     * any client spoof their address and bypass every deny rule (e.g. sending
+     * "X-Forwarded-For: 127.0.0.1" matched the localhost allow branch and passed
+     * unconditionally). To trust a real reverse proxy or Cloudflare, configure
+     * TRUSTED_PROXIES so ips() returns the genuine client IP instead.
+     *
+     * @return array<int, string> Unique, framework-resolved client IP chain.
+     */
     protected function ipList()
     {
-        $r = request();
-        $list = [];
-
-        // Collect CF-Connecting-IP
-        $cf = $r->header('CF-Connecting-IP');
-        if (!empty($cf)) {
-            $list[] = trim($cf);
-        }
-
-        // Collect X-Forwarded-For (may contain comma separated values)
-        $xff = $r->header('X-Forwarded-For');
-        if (!empty($xff)) {
-            foreach (explode(',', $xff) as $item) {
-                $item = trim($item);
-                if ($item !== '') {
-                    $list[] = $item;
-                }
-            }
-        }
-
-        // Collect request IP chain
-        foreach ((array) $r->ips() as $ip) {
-            if (!empty($ip)) {
-                $list[] = $ip;
-            }
-        }
-
-        // De-duplicate while preserving order
-        return array_values(array_unique($list));
+        // De-duplicate while dropping empty entries.
+        return array_values(array_unique(array_filter((array) request()->ips())));
     }
 }

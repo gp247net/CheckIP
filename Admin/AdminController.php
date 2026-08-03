@@ -18,79 +18,17 @@ class AdminController extends RootAdminController
         $this->plugin = new AppConfig;
     }
     
+    /**
+     * Legacy admin index (fallback only).
+     *
+     * Core 2.0 routes the admin screen to the Livewire component; this controller
+     * action is reached only when that class is unavailable (see Route.php guard),
+     * rendering a static TailAdmin stub with no jQuery/AdminLTE dependency.
+     */
     public function index()
     {
-        $data = [
-            'title' => gp247_language_render('Plugins/CheckIP::lang.admin.list'),
-            'title_action' => '<i class="fa fa-plus" aria-hidden="true"></i> ' . gp247_language_render('Plugins/CheckIP::lang.admin.add_new_title'),
-            'subTitle' => '',
-            'icon' => 'fa fa-indent',
-            'urlDeleteItem' => gp247_route_admin('admin_checkip.delete'),
-            'removeList' => 0, // 1 - Enable function delete list item
-            'buttonRefresh' => 0, // 1 - Enable button refresh
-            'buttonSort' => 0, // 1 - Enable button sort
-            'css' => '',
-            'js' => '',
-            'url_action' => gp247_route_admin('admin_checkip.create'),
-        ];
-
-        $listTh = [
-            'id' => '#',
-            'ip' => gp247_language_render('Plugins/CheckIP::lang.ip'),
-            'description' => gp247_language_render('Plugins/CheckIP::lang.description'),
-            'status' => gp247_language_render('Plugins/CheckIP::lang.status'),
-            'action' => gp247_language_render('action.title'),
-        ];
-
-        $obj = new CheckIPAccess;
-        $obj = $obj->orderBy('id')
-                ->get()
-                ->groupBy('type');
-        $dataTmp = $obj;
-
-        $dataTrAllow = [];
-        $dataTrDeny = [];
-        if(!empty($dataTmp['allow']) && count($dataTmp['allow'])) {
-            foreach ($dataTmp['allow'] as $type => $row) {
-                $dataTrAllow[] = [
-                    'id' => $row['id'],
-                    'ip' => $row['ip'],
-                    'description' => $row['description'],
-                    'status' => empty($row['status']) ? '<span class="badge bg-secondary">OFF</span>' : '<span class="badge bg-success">ON</span>',
-                    'action' => '
-                        <a href="' . gp247_route_admin('admin_checkip.edit', ['id' => $row['id']]) . '"><span title="' . gp247_language_render('action.edit') . '" type="button" class="btn btn-flat btn-primary"><i class="fa fa-edit"></i></span></a>&nbsp;
-    
-                      <span  onclick="deleteItem(' . $row['id'] . ');"  title="' . gp247_language_render('action.delete') . '" class="btn btn-flat btn-danger"><i class="fas fa-trash-alt"></i></span>
-                      ',
-                ];
-            }
-        }
-
-        if(!empty($dataTmp['deny']) && count($dataTmp['deny'])) {
-            foreach ($dataTmp['deny'] as $type => $row) {
-                $dataTrDeny[] = [
-                    'id' => $row['id'],
-                    'ip' => $row['ip'],
-                    'description' => $row['description'],
-                    'status' => empty($row['status']) ? '<span class="badge bg-secondary">OFF</span>' : '<span class="badge bg-success">ON</span>',
-                    'action' => '
-                        <a href="' . gp247_route_admin('admin_checkip.edit', ['id' => $row['id']]) . '"><span title="' . gp247_language_render('action.edit') . '" type="button" class="btn btn-flat btn-primary"><i class="fa fa-edit"></i></span></a>&nbsp;
-    
-                      <span  onclick="deleteItem(' . $row['id'] . ');"  title="' . gp247_language_render('action.delete') . '" class="btn btn-flat btn-danger"><i class="fas fa-trash-alt"></i></span>
-                      ',
-                ];
-            }
-        }
-        $data['ipRow'] = [];
-        $data['listTh'] = $listTh;
-        $data['dataTrAllow'] = $dataTrAllow;
-        $data['dataTrDeny'] = $dataTrDeny;
-        $data['pagination'] = '';
-        $data['resultItems'] = '';
-
-        $data['layout'] = 'index';
         return view($this->plugin->appPath.'::Admin')
-            ->with($data);
+            ->with('title', gp247_language_render('Plugins/CheckIP::lang.admin.list'));
     }
 
 
@@ -129,80 +67,15 @@ class AdminController extends RootAdminController
     }
 
     /**
-     * Form edit
+     * Form edit (legacy route).
+     *
+     * Core 2.0 renders the admin screen with the Livewire component, so this legacy
+     * GET route deep-links into that screen (`?edit={id}`) instead of the removed
+     * AdminLTE view — keeping old bookmarks/links working.
      */
     public function edit($id)
     {
-        $ipRow = CheckIPAccess::find($id);
-        if (!$ipRow) {
-            return 'No data';
-        }
-        $data = [
-        'title' => gp247_language_render('Plugins/CheckIP::lang.admin.list'),
-        'title_action' => '<i class="fa fa-edit" aria-hidden="true"></i> ' . gp247_language_render('action.edit'),
-        'subTitle' => '',
-        'icon' => 'fa fa-indent',
-        'urlDeleteItem' => gp247_route_admin('admin_checkip.delete'),
-        'removeList' => 0, // 1 - Enable function delete list item
-        'buttonRefresh' => 0, // 1 - Enable button refresh
-        'buttonSort' => 0, // 1 - Enable button sort
-        'css' => '',
-        'js' => '',
-        'url_action' => gp247_route_admin('admin_checkip.edit', ['id' => $ipRow['id']]),
-        'ipRow' => $ipRow,
-        ];
-
-        $listTh = [
-            'id' => 'ID',
-            'ip' => gp247_language_render('Plugins/CheckIP::lang.ip'),
-            'description' => gp247_language_render('Plugins/CheckIP::lang.description'),
-            'action' => gp247_language_render('action.title'),
-        ];
-        
-        $obj = new CheckIPAccess;
-        $obj = $obj->orderBy('id')
-                ->get()
-                ->groupBy('type');
-        $dataTmp = $obj;
-
-        $dataTrAllow = [];
-        $dataTrDeny = [];
-        if(!empty($dataTmp['allow']) && count($dataTmp['allow'])) {
-            foreach ($dataTmp['allow'] as $type => $row) {
-                $dataTrAllow[] = [
-                    'id' => $row['id'],
-                    'ip' => $row['ip'],
-                    'description' => $row['description'],
-                    'action' => '
-                        <a href="' . gp247_route_admin('admin_checkip.edit', ['id' => $row['id']]) . '"><span title="' . gp247_language_render('action.edit') . '" type="button" class="btn btn-flat btn-primary"><i class="fa fa-edit"></i></span></a>&nbsp;
-    
-                      <span onclick="deleteItem(' . $row['id'] . ');"  title="' . gp247_language_render('action.delete') . '" class="btn btn-flat btn-danger"><i class="fas fa-trash-alt"></i></span>
-                      ',
-                ];
-            }
-        }
-
-        if(!empty($dataTmp['deny']) && count($dataTmp['deny'])) {
-            foreach ($dataTmp['deny'] as $type => $row) {
-                $dataTrDeny[] = [
-                    'id' => $row['id'],
-                    'ip' => $row['ip'],
-                    'description' => $row['description'],
-                    'action' => '
-                        <a href="' . gp247_route_admin('admin_checkip.edit', ['id' => $row['id']]) . '"><span title="' . gp247_language_render('action.edit') . '" type="button" class="btn btn-flat btn-primary"><i class="fa fa-edit"></i></span></a>&nbsp;
-    
-                      <span onclick="deleteItem(' . $row['id'] . ');"  title="' . gp247_language_render('action.delete') . '" class="btn btn-flat btn-danger"><i class="fas fa-trash-alt"></i></span>
-                      ',
-                ];
-            }
-        }
-
-        $data['listTh'] = $listTh;
-        $data['dataTrAllow'] = $dataTrAllow;
-        $data['dataTrDeny'] = $dataTrDeny;
-        $data['layout'] = 'edit';
-        return view($this->plugin->appPath.'::Admin')
-        ->with($data);
+        return redirect()->route('admin_checkip.index', ['edit' => $id]);
     }
 
     /**
